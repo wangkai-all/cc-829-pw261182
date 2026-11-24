@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>点证 · 多指标工艺决策台</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">证</div>
+      <div>
+        <h1>点证 <span>Pointwise Delivery</span></h1>
+        <p>联合场景求支配 · 权重范围找见证 · 按决策歧义评估补测</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="themeToggle" class="btn ghost" type="button">切换深色</button>
+      <button id="enumBtnTop" class="btn ghost" type="button">枚举核对</button>
+      <button id="downloadTemplate" class="btn ghost" type="button">下载 JSON 模板</button>
+      <label class="btn secondary file-btn">
+        导入 JSON
+        <input id="importFile" type="file" accept="application/json,.json" hidden />
+      </label>
+      <button id="resetSeed" class="btn primary" type="button">恢复虚构示例</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero card">
+      <div>
+        <p class="eyebrow">不从区间中点偷跑排行榜</p>
+        <h2 id="datasetName">正在载入数据…</h2>
+        <p id="datasetDescription" class="muted"></p>
+      </div>
+      <div class="principle" id="principleBox">
+        <strong>求界原则</strong>
+        <p>所有支配和最优判断都落在同一联合场景内；区间条只展示联合点包络，不把跨指标端点拼成不存在的“最坏世界”。</p>
+      </div>
+    </section>
+
+    <section class="card controls-card" aria-labelledby="controlsTitle">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">偏好与红线</p>
+          <h2 id="controlsTitle">改变权重范围，锁定不可退让阈值</h2>
+        </div>
+        <div class="preset-groups">
+          <div class="button-row" id="weightPresetRow"></div>
+          <div class="button-row" id="thresholdPresetRow"></div>
+        </div>
+      </div>
+
+      <div class="controls-grid">
+        <div class="weight-controls">
+          <h3>权重范围（不替你选单点权重）</h3>
+          <div id="weightRows" class="weight-rows"></div>
+          <p id="weightFeasibility" class="feasibility"></p>
+        </div>
+        <div class="threshold-controls">
+          <h3>不可退让阈值</h3>
+          <div id="thresholdRows" class="threshold-rows"></div>
+          <p class="hint">勾选“锁定”后，只有在全部联合场景中稳健达标的方案才进入最优见证集合。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="conflictBanner" class="conflict-banner" hidden></section>
+
+    <section class="kpi-grid" id="kpiGrid" aria-label="决策统计"></section>
+
+    <section class="workspace-grid">
+      <div class="card candidate-card">
+        <div class="section-heading compact">
+          <div>
+            <p class="eyebrow">候选集合</p>
+            <h2>三分类与等价标记</h2>
+          </div>
+          <div class="legend" id="classLegend"></div>
+        </div>
+        <div id="candidateList" class="candidate-list"></div>
+      </div>
+
+      <aside class="card detail-card" id="detailPanel" aria-live="polite">
+        <div id="detailContent"></div>
+      </aside>
+    </section>
+
+    <section class="card">
+      <div class="section-heading compact">
+        <div>
+          <p class="eyebrow">联合求界</p>
+          <h2>指标包络与每个端点的场景出处</h2>
+        </div>
+        <p class="hint">悬停刻度查看联合场景；虚线/斜纹条表示只有边际区间、缺少联合证据。</p>
+      </div>
+      <div id="rangeOverview" class="range-overview"></div>
+    </section>
+
+    <section class="measurement-grid">
+      <div class="card">
+        <div class="section-heading compact">
+          <div>
+            <p class="eyebrow">追加测量</p>
+            <h2>按“能排除多少决策歧义 / 费用”比较</h2>
+          </div>
+          <p class="hint">概率为虚构先验；同时给出期望、保底和最好分支。</p>
+        </div>
+        <div id="recommendationList" class="recommendation-list"></div>
+      </div>
+
+      <div class="measurement-side">
+        <div class="card">
+          <h2>补入合成测量</h2>
+          <form id="customMeasureForm" class="form-grid">
+            <label>方案
+              <select id="customAlt"></select>
+            </label>
+            <label>指标
+              <select id="customMetric"></select>
+            </label>
+            <label>合成观测值
+              <input id="customValue" type="number" step="0.01" required />
+            </label>
+            <label>可信半宽
+              <input id="customTol" type="number" step="0.01" min="0" value="0.1" required />
+            </label>
+            <label>费用（万元）
+              <input id="customCost" type="number" step="0.1" min="0" value="5" required />
+            </label>
+            <button class="btn primary" type="submit">补入并重算前后解释</button>
+          </form>
+          <p class="hint">观测值默认取包络中点，仅为录入便利，不参与排序。对联合方案，合成结果只保留同指标落在观测邻域内的联合场景；不会生成跨指标端点。</p>
+        </div>
+
+        <div class="card">
+          <div class="section-heading compact">
+            <h2>已补测量与前后解释</h2>
+            <button id="undoMeasure" class="btn ghost" type="button">撤销上一步</button>
+          </div>
+          <div id="latestDiff" class="diff-box">尚未补入测量。</div>
+          <div id="appliedList" class="applied-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card enumeration-card" id="enumerationSection">
+      <div class="section-heading compact">
+        <div>
+          <p class="eyebrow">小规模独立核对</p>
+          <h2>单纯形权重网格 × 联合场景枚举</h2>
+        </div>
+        <button id="runEnumBtn" class="btn secondary" type="button">重新运行枚举核对</button>
+      </div>
+      <div id="enumContent" class="enum-content">点击“枚举核对”运行独立暴力枚举。</div>
+    </section>
+
+    <section class="card data-card">
+      <div class="section-heading compact">
+        <div>
+          <p class="eyebrow">原始联合数据</p>
+          <h2>场景表</h2>
+        </div>
+      </div>
+      <div id="scenarioTable" class="table-scroll"></div>
+    </section>
+
+    <footer class="footer muted">
+      纯 Python 标准库 + 原生 JavaScript，无外部依赖。示例数据与测量概率均为虚构。
+    </footer>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,357 @@
+{
+  "schema_version": "1.0",
+  "name": "虚构绿色成型工艺组合：区间、联合场景与测量费用",
+  "description": "所有数值均为虚构教学数据。每个场景给出同一运行世界下全部方案的成本、能耗和收率，保留指标间相关性。",
+  "currency_unit": "万元",
+  "metrics": [
+    {
+      "id": "cost",
+      "name": "单位制造成本",
+      "direction": "min",
+      "unit": "万元/吨",
+      "scale": [3.0, 7.5],
+      "description": "含原料、折旧与运行费用；越低越好。"
+    },
+    {
+      "id": "energy",
+      "name": "综合能耗",
+      "direction": "min",
+      "unit": "MWh/吨",
+      "scale": [8.0, 20.0],
+      "description": "电、蒸汽与天然气折算；越低越好。"
+    },
+    {
+      "id": "yield",
+      "name": "合格品收率",
+      "direction": "max",
+      "unit": "%",
+      "scale": [72.0, 99.0],
+      "description": "一次合格品比例；越高越好。"
+    }
+  ],
+  "weight_ranges": {
+    "cost": [0.15, 0.60],
+    "energy": [0.10, 0.50],
+    "yield": [0.15, 0.55]
+  },
+  "thresholds": [
+    {"metric_id": "cost", "op": "<=", "value": 5.8, "locked": false},
+    {"metric_id": "energy", "op": "<=", "value": 15.5, "locked": false},
+    {"metric_id": "yield", "op": ">=", "value": 84.0, "locked": false}
+  ],
+  "threshold_presets": {
+    "none": [],
+    "normal": [
+      {"metric_id": "cost", "op": "<=", "value": 5.6, "locked": true},
+      {"metric_id": "yield", "op": ">=", "value": 88.0, "locked": true}
+    ],
+    "contradiction": [
+      {"metric_id": "cost", "op": "<=", "value": 4.2, "locked": true},
+      {"metric_id": "yield", "op": ">=", "value": 95.0, "locked": true}
+    ]
+  },
+  "weight_presets": {
+    "broad": {"cost": [0.15, 0.60], "energy": [0.10, 0.50], "yield": [0.15, 0.55]},
+    "cost_first": {"cost": [0.50, 0.70], "energy": [0.10, 0.25], "yield": [0.15, 0.30]},
+    "quality_energy": {"cost": [0.10, 0.30], "energy": [0.25, 0.45], "yield": [0.35, 0.55]},
+    "equal_band": {"cost": [0.25, 0.42], "energy": [0.25, 0.42], "yield": [0.25, 0.42]}
+  },
+  "alternatives": [
+    {
+      "id": "P1",
+      "name": "碱熔间歇釜",
+      "process": "传统碱熔 + 间歇结晶",
+      "vendor": "北线一厂",
+      "tags": ["成熟", "高能耗"],
+      "notes": "每个联合场景中均落后于 P2，用作确定被支配样例。"
+    },
+    {
+      "id": "P2",
+      "name": "连续结晶改造",
+      "process": "连续结晶 + DCS 先进控制",
+      "vendor": "北线二厂",
+      "tags": ["均衡", "改造样板"],
+      "notes": "成本、能耗、收率较均衡。"
+    },
+    {
+      "id": "P3",
+      "name": "膜耦合低温路线",
+      "process": "低温反应 + 膜分离",
+      "vendor": "蓝膜工程",
+      "tags": ["高收率", "高投资"],
+      "notes": "收率和能耗表现好，但成本区间高；端点不能任意组合。"
+    },
+    {
+      "id": "P4",
+      "name": "高负荷短周期",
+      "process": "高进料负荷 + 短结晶周期",
+      "vendor": "快产联队",
+      "tags": ["低成本", "能耗波动"],
+      "notes": "低成本与高负荷批次相关，常伴随能耗上升和收率下降。"
+    },
+    {
+      "id": "P5",
+      "name": "余热联产集成",
+      "process": "余热锅炉 + 蒸汽联产",
+      "vendor": "绿热集成",
+      "tags": ["低能耗", "工程复杂"],
+      "notes": "能耗最低之一，但成本略高于 P2。"
+    },
+    {
+      "id": "P6",
+      "name": "连续结晶改造·平行包",
+      "process": "P2 的同工艺 EPC 平行报价",
+      "vendor": "同源设计院",
+      "tags": ["完全等价"],
+      "notes": "五场景指标与 P2 完全相同，用于核对完全等价方案不应被互相判为支配。"
+    },
+    {
+      "id": "P7",
+      "name": "提温抢收率",
+      "process": "提高反应温度以缩短周期",
+      "vendor": "快产联队",
+      "tags": ["相关性陷阱"],
+      "notes": "边际区间看似可拼出低成本、低能耗、高收率；联合场景显示三者从未同时出现，并被 P5 稳健支配。"
+    },
+    {
+      "id": "P8",
+      "name": "扩产捷径包",
+      "process": "未经联合标定的外购工艺包",
+      "vendor": "新进入供应商",
+      "evidence_mode": "marginal_only",
+      "intervals": {
+        "cost": [3.7, 6.4],
+        "energy": [9.0, 19.5],
+        "yield": [80.0, 96.0]
+      },
+      "tags": ["证据缺口"],
+      "notes": "只有边际估计，没有同批联合场景或明确约束。不能假设 3.7 成本、9.0 能耗和 96% 收率可同时达到。"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "S1",
+      "name": "稳态标定批次",
+      "probability": 0.28,
+      "values": {
+        "P1": {"cost": 5.4, "energy": 15.2, "yield": 87.0},
+        "P2": {"cost": 4.6, "energy": 12.5, "yield": 91.5},
+        "P3": {"cost": 5.9, "energy": 10.8, "yield": 95.2},
+        "P4": {"cost": 3.9, "energy": 16.8, "yield": 86.0},
+        "P5": {"cost": 5.0, "energy": 9.6, "yield": 90.8},
+        "P6": {"cost": 4.6, "energy": 12.5, "yield": 91.5},
+        "P7": {"cost": 5.4, "energy": 11.8, "yield": 90.0}
+      }
+    },
+    {
+      "id": "S2",
+      "name": "高负荷连续运行",
+      "probability": 0.22,
+      "values": {
+        "P1": {"cost": 5.2, "energy": 14.6, "yield": 88.2},
+        "P2": {"cost": 4.3, "energy": 11.8, "yield": 93.0},
+        "P3": {"cost": 5.6, "energy": 10.2, "yield": 96.4},
+        "P4": {"cost": 3.6, "energy": 15.4, "yield": 88.5},
+        "P5": {"cost": 4.8, "energy": 9.1, "yield": 91.8},
+        "P6": {"cost": 4.3, "energy": 11.8, "yield": 93.0},
+        "P7": {"cost": 5.1, "energy": 11.2, "yield": 91.0}
+      }
+    },
+    {
+      "id": "S3",
+      "name": "原料品位波动",
+      "probability": 0.20,
+      "values": {
+        "P1": {"cost": 5.8, "energy": 16.1, "yield": 84.5},
+        "P2": {"cost": 4.9, "energy": 13.4, "yield": 89.5},
+        "P3": {"cost": 6.4, "energy": 11.9, "yield": 93.8},
+        "P4": {"cost": 4.2, "energy": 18.2, "yield": 83.2},
+        "P5": {"cost": 5.3, "energy": 10.4, "yield": 89.2},
+        "P6": {"cost": 4.9, "energy": 13.4, "yield": 89.5},
+        "P7": {"cost": 5.7, "energy": 12.4, "yield": 88.5}
+      }
+    },
+    {
+      "id": "S4",
+      "name": "切换清洗与尾部批次",
+      "probability": 0.15,
+      "values": {
+        "P1": {"cost": 6.1, "energy": 17.0, "yield": 82.0},
+        "P2": {"cost": 5.1, "energy": 14.2, "yield": 88.0},
+        "P3": {"cost": 6.7, "energy": 12.6, "yield": 92.5},
+        "P4": {"cost": 4.5, "energy": 19.1, "yield": 81.0},
+        "P5": {"cost": 5.5, "energy": 10.9, "yield": 88.4},
+        "P6": {"cost": 5.1, "energy": 14.2, "yield": 88.0},
+        "P7": {"cost": 5.9, "energy": 12.9, "yield": 87.6}
+      }
+    },
+    {
+      "id": "S5",
+      "name": "夏季冷却受限",
+      "probability": 0.15,
+      "values": {
+        "P1": {"cost": 5.7, "energy": 16.4, "yield": 85.8},
+        "P2": {"cost": 4.8, "energy": 13.8, "yield": 90.2},
+        "P3": {"cost": 6.2, "energy": 12.1, "yield": 94.4},
+        "P4": {"cost": 4.1, "energy": 18.6, "yield": 84.6},
+        "P5": {"cost": 5.1, "energy": 10.1, "yield": 90.0},
+        "P6": {"cost": 4.8, "energy": 13.8, "yield": 90.2},
+        "P7": {"cost": 5.5, "energy": 12.0, "yield": 89.4}
+      }
+    }
+  ],
+  "measurements": [
+    {
+      "id": "M1",
+      "name": "P3 膜寿命-能耗-收率联合验证",
+      "cost": 18.0,
+      "target": {"alternative_id": "P3", "metric_ids": ["cost", "energy", "yield"]},
+      "description": "同批跟踪膜污染、通量、能耗和收率，区分高收率是否以峰值成本为条件。",
+      "outcomes": [
+        {
+          "id": "membrane_good",
+          "label": "污染可控：高收率可重复",
+          "probability": 0.55,
+          "summary": "保留 S1/S2",
+          "operations": [{"op": "retain_scenarios", "ids": ["S1", "S2"]}]
+        },
+        {
+          "id": "membrane_fouling",
+          "label": "污染加速：清洗能耗上升",
+          "probability": 0.45,
+          "summary": "保留 S4/S5",
+          "operations": [{"op": "retain_scenarios", "ids": ["S4", "S5"]}]
+        }
+      ]
+    },
+    {
+      "id": "M2",
+      "name": "P4 高负荷物料-能源同步台账",
+      "cost": 6.5,
+      "target": {"alternative_id": "P4", "metric_ids": ["cost", "energy", "yield"]},
+      "description": "用同一批次的进料量、电费、蒸汽和正品入库量核对相关性，而不是只测成本中点。",
+      "outcomes": [
+        {
+          "id": "balanced",
+          "label": "波动一般：稳态/原料波动",
+          "probability": 0.40,
+          "summary": "保留 S1/S3",
+          "operations": [{"op": "retain_scenarios", "ids": ["S1", "S3"]}]
+        },
+        {
+          "id": "high_load_good",
+          "label": "高负荷确实最优",
+          "probability": 0.30,
+          "summary": "保留 S2",
+          "operations": [{"op": "retain_scenarios", "ids": ["S2"]}]
+        },
+        {
+          "id": "penalty",
+          "label": "高负荷伴随能耗/收率惩罚",
+          "probability": 0.30,
+          "summary": "保留 S4/S5",
+          "operations": [{"op": "retain_scenarios", "ids": ["S4", "S5"]}]
+        }
+      ]
+    },
+    {
+      "id": "M3",
+      "name": "原料品位-收率相关性抽检",
+      "cost": 3.0,
+      "target": {"metric_ids": ["yield", "cost"]},
+      "description": "验证原料波动场景是否应保留，可能同时澄清多个方案的权衡。",
+      "outcomes": [
+        {
+          "id": "stable_feed",
+          "label": "原料稳定，波动场景可排除",
+          "probability": 0.60,
+          "summary": "保留 S1/S2",
+          "operations": [{"op": "retain_scenarios", "ids": ["S1", "S2"]}]
+        },
+        {
+          "id": "variable_feed",
+          "label": "波动真实，保留 S3/S4",
+          "probability": 0.40,
+          "summary": "保留 S3/S4",
+          "operations": [{"op": "retain_scenarios", "ids": ["S3", "S4"]}]
+        }
+      ]
+    },
+    {
+      "id": "M4",
+      "name": "P8 联合试生产包",
+      "cost": 28.0,
+      "target": {"alternative_id": "P8", "metric_ids": ["cost", "energy", "yield"]},
+      "description": "在同一试生产批次同时测量三项指标，把边际估计升级为联合证据。",
+      "outcomes": [
+        {
+          "id": "p8_verified",
+          "label": "联合表现均衡且有竞争力",
+          "probability": 0.55,
+          "summary": "补齐 S1–S5 的同批联合值",
+          "operations": [
+            {"op": "update_alternative", "id": "P8", "patch": {"evidence_mode": "joint"}},
+            {"op": "set_values", "scenario_id": "S1", "alternative_id": "P8", "values": {"cost": 4.45, "energy": 10.7, "yield": 93.6}},
+            {"op": "set_values", "scenario_id": "S2", "alternative_id": "P8", "values": {"cost": 4.20, "energy": 10.1, "yield": 94.5}},
+            {"op": "set_values", "scenario_id": "S3", "alternative_id": "P8", "values": {"cost": 4.70, "energy": 11.4, "yield": 92.1}},
+            {"op": "set_values", "scenario_id": "S4", "alternative_id": "P8", "values": {"cost": 4.90, "energy": 12.0, "yield": 90.8}},
+            {"op": "set_values", "scenario_id": "S5", "alternative_id": "P8", "values": {"cost": 4.60, "energy": 11.2, "yield": 92.8}}
+          ]
+        },
+        {
+          "id": "p8_penalty",
+          "label": "低成本端点与高能耗/低收率同时出现",
+          "probability": 0.45,
+          "summary": "补齐 S1–S5 的相关性惩罚值",
+          "operations": [
+            {"op": "update_alternative", "id": "P8", "patch": {"evidence_mode": "joint"}},
+            {"op": "set_values", "scenario_id": "S1", "alternative_id": "P8", "values": {"cost": 4.00, "energy": 17.5, "yield": 84.5}},
+            {"op": "set_values", "scenario_id": "S2", "alternative_id": "P8", "values": {"cost": 3.70, "energy": 16.2, "yield": 87.5}},
+            {"op": "set_values", "scenario_id": "S3", "alternative_id": "P8", "values": {"cost": 4.30, "energy": 18.8, "yield": 82.0}},
+            {"op": "set_values", "scenario_id": "S4", "alternative_id": "P8", "values": {"cost": 4.60, "energy": 19.6, "yield": 79.8}},
+            {"op": "set_values", "scenario_id": "S5", "alternative_id": "P8", "values": {"cost": 4.20, "energy": 19.0, "yield": 83.5}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "M5",
+      "name": "P5 余热锅炉能效标定",
+      "cost": 11.5,
+      "target": {"alternative_id": "P5", "metric_ids": ["energy"]},
+      "description": "确认低能耗是否在夏季和变负荷下仍成立。",
+      "outcomes": [
+        {
+          "id": "heat_confirmed",
+          "label": "余热出力稳定",
+          "probability": 0.65,
+          "summary": "保留 S1/S2/S5",
+          "operations": [{"op": "retain_scenarios", "ids": ["S1", "S2", "S5"]}]
+        },
+        {
+          "id": "heat_degradation",
+          "label": "换热器衰减，低能耗不可重复",
+          "probability": 0.35,
+          "summary": "保留 S3/S4",
+          "operations": [{"op": "retain_scenarios", "ids": ["S3", "S4"]}]
+        }
+      ]
+    },
+    {
+      "id": "M6",
+      "name": "P1 已支配方案的成本中点加密化验",
+      "cost": 2.2,
+      "target": {"alternative_id": "P1", "metric_ids": ["cost"]},
+      "description": "只会缩窄一个已经被稳健支配方案的成本区间；预期不排除任何决策歧义，作为反例。",
+      "outcomes": [
+        {
+          "id": "middle_confirmed",
+          "label": "中点估计得到确认",
+          "probability": 1.0,
+          "summary": "保留全部场景但不改变支配关系",
+          "operations": []
+        }
+      ]
+    }
+  ]
+}

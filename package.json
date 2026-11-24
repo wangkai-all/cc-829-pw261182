@@ -1,0 +1,14 @@
+{
+  "name": "pointwise-delivery-mcda",
+  "version": "1.0.0",
+  "private": true,
+  "description": "证据保持的多指标工艺决策应用：联合场景支配、权重范围见证与测量歧义价值",
+  "scripts": {
+    "start": "python3 -m app.server",
+    "test": "python3 -m unittest discover -s tests -v",
+    "enumerate": "python3 scripts/enumerate_check.py"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
